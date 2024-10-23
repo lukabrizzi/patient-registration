@@ -7,8 +7,17 @@ const patientSchema = z.object({
   name: z
     .string()
     .regex(/^[A-Za-z\s]+$/, { message: "Name must contain only letters" }),
-  email: z.string().email({ message: "Invalid email address" }),
-  phone: z.string().regex(/^\+?[0-9]{10,15}$/, {
+  email: z
+    .string()
+    .email({ message: "Invalid email address" })
+    .refine((email) => email.endsWith("@gmail.com"), {
+      message: "Email must end with @gmail.com",
+    }),
+  countryCode: z.string().regex(/^\+?[0-9]{1,4}$/, {
+    message:
+      "Country code must be between 1 and 4 digits and can include a leading +",
+  }),
+  phoneNumber: z.string().regex(/^[0-9]{10,15}$/, {
     message: "Phone number must be between 10 and 15 digits",
   }),
 });
@@ -22,22 +31,22 @@ export const validatePatient = async (
 
   try {
     patientSchema.parse(req.body);
-    const { name, email, phone } = req.body;
+    const { name, email, countryCode, phoneNumber } = req.body;
+
+    const fullPhone = `${countryCode}${phoneNumber}`;
 
     const [existingPatients]: [RowDataPacket[], any] = await db.query(
-      "SELECT * FROM patients WHERE name = ? OR email = ? OR phone = ?",
-      [name, email, phone]
+      "SELECT * FROM patients WHERE name = ? OR email = ? OR CONCAT(countryCode, phoneNumber) = ?",
+      [name, email, fullPhone]
     );
 
     console.log("Existing patients found:", existingPatients);
 
     if (existingPatients.length > 0) {
-      res
-        .status(409)
-        .json({
-          message:
-            "A patient with the same name, email, or phone number already exists",
-        });
+      res.status(409).json({
+        message:
+          "A patient with the same name, email, or phone number already exists",
+      });
       return;
     }
 

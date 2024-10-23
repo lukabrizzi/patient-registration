@@ -1,6 +1,10 @@
-import React, { FC, useState } from "react";
+import { useState, FC } from "react";
 import axios from "axios";
 import Button from "./Button";
+import FormResults from "./FormResults";
+import InputField from "./InputField";
+import DragAndDropField from "./DragAndDropField";
+import { validateForm, ValidationErrors } from "../utils/validation";
 
 interface PatientFormProps {
   setModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -8,81 +12,117 @@ interface PatientFormProps {
 }
 
 const PatientForm: FC<PatientFormProps> = ({ setModalOpen, fetchPatients }) => {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
-  const [documentPhoto, setDocumentPhoto] = useState<File | null>(null);
-  const [hasError, setHasError] = useState(false);
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    countryCode: "",
+    phone: "",
+    documentPhoto: null as File | null,
+  });
+
+  const [errors, setErrors] = useState<ValidationErrors>({
+    name: "",
+    email: "",
+    phone: "",
+    documentPhoto: "",
+  });
+
+  const [formStatus, setFormStatus] = useState<
+    "idle" | "error" | "success" | "multipleErrors"
+  >("idle");
+
+  const [showResults, setShowResults] = useState(false);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setHasError(false);
-    const formData = new FormData();
-    formData.append("name", name);
-    formData.append("email", email);
-    formData.append("phone", phone);
-    if (documentPhoto) {
-      formData.append("documentPhoto", documentPhoto);
+    const validationResults = validateForm(formData);
+
+    if (!validationResults.isValid) {
+      setErrors(validationResults.errors);
+      setFormStatus(
+        validationResults.errorCount > 1 ? "multipleErrors" : "error"
+      );
+      setShowResults(true);
+      return;
+    }
+
+    const formDataToSend = new FormData();
+    formDataToSend.append("name", formData.name);
+    formDataToSend.append("email", formData.email);
+    formDataToSend.append("phone", `${formData.countryCode}${formData.phone}`);
+    if (formData.documentPhoto) {
+      formDataToSend.append("documentPhoto", formData.documentPhoto);
     }
 
     try {
       const response = await axios.post(
         "http://localhost:3000/api/patients",
-        formData
+        formDataToSend
       );
       console.log("Patient saved:", response.data);
+      setFormStatus("success");
       fetchPatients();
-      setModalOpen(false);
     } catch (error) {
-      setHasError(true);
-      console.error("Error saving patient:", error);
+      setFormStatus("error");
     }
+
+    setShowResults(true);
+  };
+
+  const handleFileDrop = (file: File) => {
+    setFormData((prev) => ({ ...prev, documentPhoto: file }));
   };
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-      <div className="flex flex-col gap-1">
-        <span>Name</span>
-        <input
-          type="text"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
-          className="border rounded-sm p-1"
-        />
-      </div>
-      <div className="flex flex-col gap-1">
-        <span>Email</span>
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          className="border rounded-sm p-1"
-        />
-      </div>
-      <div className="flex flex-col gap-1">
-        <span>Phone</span>
-        <input
-          type="text"
-          value={phone}
-          onChange={(e) => setPhone(e.target.value)}
-          required
-          className="border rounded-sm p-1"
-        />
-      </div>
-      <div className="flex flex-col gap-1">
-        <span>Patient Image</span>
-        <input
-          type="file"
-          accept=".jpg"
-          onChange={(e) => setDocumentPhoto(e.target.files![0])}
-          required
-          className="border rounded-sm p-1"
-        />
-      </div>
-      {hasError && <span className="text-red-500">Request Error</span>}
-      <Button type="submit">Add Patient</Button>
+      <InputField
+        label="Name"
+        name="name"
+        value={formData.name}
+        onChange={handleInputChange}
+        error={errors.name}
+        required
+      />
+      <InputField
+        label="Email"
+        name="email"
+        value={formData.email}
+        onChange={handleInputChange}
+        error={errors.email}
+        required
+      />
+      <InputField
+        label="Country Code"
+        name="countryCode"
+        value={formData.countryCode}
+        onChange={handleInputChange}
+        required
+      />
+      <InputField
+        label="Phone Number"
+        name="phone"
+        value={formData.phone}
+        onChange={handleInputChange}
+        error={errors.phone}
+        required
+      />
+      <DragAndDropField
+        label="Patient Image"
+        file={formData.documentPhoto}
+        onFileDrop={handleFileDrop}
+        error={errors.documentPhoto}
+      />
+      {showResults && <FormResults formStatus={formStatus} errors={errors} />}
+      {formStatus !== "success" ? (
+        <Button type="submit">Add Patient</Button>
+      ) : (
+        <Button onClick={() => setModalOpen(false)}>Close</Button>
+      )}
     </form>
   );
 };

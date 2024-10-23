@@ -10,7 +10,7 @@ const router = Router();
 
 const storage: StorageEngine = multer.diskStorage({
   destination: function (req, file, cb) {
-    const uploadDir = path.join(__dirname, "../../uploads/"); // Resolve to backend/uploads/
+    const uploadDir = path.join(__dirname, "../../uploads/");
     cb(null, uploadDir);
   },
   filename: function (req, file, cb) {
@@ -18,14 +18,22 @@ const storage: StorageEngine = multer.diskStorage({
   },
 });
 
-const upload = multer({ storage });
+const fileFilter = (req: Request, file: Express.Multer.File, cb: any) => {
+  const fileExtension = path.extname(file.originalname).toLowerCase();
+  if (fileExtension === ".jpg") {
+    cb(null, true);
+  } else {
+    cb(new Error("Only .jpg images are allowed"), false);
+  }
+};
 
-router.post(
-  "/patients",
-  upload.single("documentPhoto"),
-  validatePatient,
-  registerPatient
-);
+const upload = multer({
+  storage,
+  fileFilter,
+  limits: { fileSize: 5 * 1024 * 1024 },
+}).single("documentPhoto");
+
+router.post("/patients", upload, validatePatient, registerPatient);
 
 router.get("/patients", async (req: Request, res: Response) => {
   const query = "SELECT * FROM patients";
