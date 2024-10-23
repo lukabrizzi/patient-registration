@@ -1,0 +1,12 @@
+CREATE DATABASE IF NOT EXISTS patients_db;
+
+USE patients_db;
+
+CREATE TABLE patients (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    phone VARCHAR(15) NOT NULL UNIQUE,
+    document_photo VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
