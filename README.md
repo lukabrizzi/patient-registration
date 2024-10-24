@@ -37,13 +37,15 @@ Make sure you have the following installed:
 1. Navigate to the `backend` folder:
    cd backend
 
-2. Build and start the Docker containers:
+2. Run `npm run build`
+
+3. Build and start the Docker containers:
    docker compose up --build -d
 
    - `--build`: Forces a rebuild of the Docker images, ensuring that any changes made to the Dockerfile or dependencies are included.
    - `-d`: Runs the containers in detached mode, allowing them to run in the background.
 
-3. If there are existing services running on port `3000` or `3001`, you need to stop those processes:
+4. If there are existing services running on port `3000` or `3001`, you need to stop those processes:
 
    - **On macOS (M1)**: Use the following commands to find and kill the process using the port.
      lsof -i :3000
@@ -57,7 +59,7 @@ Make sure you have the following installed:
      3. Terminate the process with the command:
         taskkill /PID <PID> /F
 
-4. Install backend dependencies (if not done previously):
+5. Install backend dependencies (if not done previously):
    npm install
 
 ### Frontend Setup

@@ -1,11 +1,13 @@
 import React, { FC } from "react";
 import { Patient } from "./PageWrapper";
+import Button from "./Button";
 
 interface PatientListProps {
   patients: Patient[];
+  setPatientToShow: React.Dispatch<React.SetStateAction<Patient | null>>;
 }
 
-const PatientList: FC<PatientListProps> = ({ patients }) => {
+const PatientList: FC<PatientListProps> = ({ patients, setPatientToShow }) => {
   return (
     <div className="overflow-x-auto">
       <table className="min-w-full bg-white border border-gray-300 rounded-lg shadow-md">
@@ -15,14 +17,9 @@ const PatientList: FC<PatientListProps> = ({ patients }) => {
               Name
             </th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-              Email
+              Photo
             </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-              Phone
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-              Document
-            </th>
+            <th className="px-6 py-3 text-right text-xs font-medium text-gray-700 uppercase tracking-wider w-1"></th>
           </tr>
         </thead>
         <tbody className="bg-white">
@@ -31,22 +28,24 @@ const PatientList: FC<PatientListProps> = ({ patients }) => {
               key={patient.id}
               className="hover:bg-gray-100 transition duration-150 ease-in-out"
             >
-              <td className="px-6 py-4 border-b border-gray-300">
+              <td className="px-6 py-4 border-b border-gray-300 w-1/2">
                 {patient.name}
               </td>
-              <td className="px-6 py-4 border-b border-gray-300">
-                {patient.email}
-              </td>
-              <td className="px-6 py-4 border-b border-gray-300">
-                {patient.phone}
-              </td>
-              <td className="px-6 py-4 border-b border-gray-300">
+              <td className="px-6 py-4 border-b border-gray-300 w-1/2">
                 <img
-                  src={`http://localhost:3000/uploads/${patient.document_photo}`}
-                  // src={patient.document_photo}
-                  alt="Document"
+                  src="https://media.licdn.com/dms/image/v2/D4D03AQGq3ptp-15BTQ/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1722761918114?e=2147483647&v=beta&t=pZwh6b-wU8uC8I8p_U-TCXRqM2iMhosfdL3Sd3YcgqI"
+                  alt="Patient"
                   className="w-12 h-12 rounded-full"
                 />
+              </td>
+              <td className="px-6 py-4 border-b border-gray-300 text-right w-1">
+                <Button
+                  onClick={() => {
+                    setPatientToShow(patient);
+                  }}
+                >
+                  Show patient
+                </Button>
               </td>
             </tr>
           ))}

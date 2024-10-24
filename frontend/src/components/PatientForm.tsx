@@ -7,11 +7,14 @@ import DragAndDropField from "./DragAndDropField";
 import { validateForm, ValidationErrors } from "../utils/validation";
 
 interface PatientFormProps {
-  setModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  setIsCreateModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
   fetchPatients: () => Promise<void>;
 }
 
-const PatientForm: FC<PatientFormProps> = ({ setModalOpen, fetchPatients }) => {
+const PatientForm: FC<PatientFormProps> = ({
+  setIsCreateModalOpen,
+  fetchPatients,
+}) => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -67,6 +70,20 @@ const PatientForm: FC<PatientFormProps> = ({ setModalOpen, fetchPatients }) => {
       console.log("Patient saved:", response.data);
       setFormStatus("success");
       fetchPatients();
+
+      const storedPatients = JSON.parse(
+        localStorage.getItem("patients") || "[]"
+      );
+      const newPatient = {
+        name: formData.name,
+        email: formData.email,
+        phone: `${formData.countryCode}${formData.phone}`,
+        documentPhoto: formData.documentPhoto
+          ? URL.createObjectURL(formData.documentPhoto)
+          : null,
+      };
+      storedPatients.push(newPatient);
+      localStorage.setItem("patients", JSON.stringify(storedPatients));
     } catch (error) {
       setFormStatus("error");
     }
@@ -121,7 +138,7 @@ const PatientForm: FC<PatientFormProps> = ({ setModalOpen, fetchPatients }) => {
       {formStatus !== "success" ? (
         <Button type="submit">Add Patient</Button>
       ) : (
-        <Button onClick={() => setModalOpen(false)}>Close</Button>
+        <Button onClick={() => setIsCreateModalOpen(false)}>Close</Button>
       )}
     </form>
   );
