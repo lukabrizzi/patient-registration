@@ -37,15 +37,25 @@ Make sure you have the following installed:
 1. Navigate to the `backend` folder:
    cd backend
 
-2. Run `npm run build`
+2. Create a .env file with the following content:
 
-3. Build and start the Docker containers:
+`PORT=3000
+DB_HOST=db
+DB_USER=root
+DB_PASSWORD=password
+DB_NAME=patients_db
+EMAIL_USER=test@gmail.com
+EMAIL_PASS=hardpassword`
+
+3. Run `npm run build`
+
+4. Build and start the Docker containers:
    docker compose up --build -d
 
    - `--build`: Forces a rebuild of the Docker images, ensuring that any changes made to the Dockerfile or dependencies are included.
    - `-d`: Runs the containers in detached mode, allowing them to run in the background.
 
-4. If there are existing services running on port `3000` or `3001`, you need to stop those processes:
+5. If there are existing services running on port `3000` or `3001`, you need to stop those processes:
 
    - **On macOS (M1)**: Use the following commands to find and kill the process using the port.
      lsof -i :3000
@@ -59,7 +69,7 @@ Make sure you have the following installed:
      3. Terminate the process with the command:
         taskkill /PID <PID> /F
 
-5. Install backend dependencies (if not done previously):
+6. Install backend dependencies (if not done previously):
    npm install
 
 ### Frontend Setup
