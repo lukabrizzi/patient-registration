@@ -14,18 +14,19 @@ export const registerPatient = async (
   req: Request,
   res: Response
 ): Promise<void> => {
-  const { name, email, phone } = req.body;
+  const { name, email, countryCode, phoneNumber } = req.body;
   const documentPhoto = req.file ? req.file.filename : null;
 
-  if (!name || !email || !phone || !documentPhoto) {
+  if (!name || !email || !countryCode || !phoneNumber || !documentPhoto) {
     res.status(400).json({ message: "All fields are required" });
     return;
   }
 
+  const fullPhone = `${countryCode}${phoneNumber}`;
   try {
     await db.query(
-      "INSERT INTO patients (name, email, phone, documentPhoto) VALUES (?, ?, ?, ?)",
-      [name, email, phone, documentPhoto]
+      "INSERT INTO patients (name, email, phone, document_photo) VALUES (?, ?, ?, ?)",
+      [name, email, fullPhone, documentPhoto]
     );
 
     const mailOptions = {

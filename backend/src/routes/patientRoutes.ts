@@ -10,7 +10,7 @@ const router = Router();
 
 const storage: StorageEngine = multer.diskStorage({
   destination: function (req, file, cb) {
-    const uploadDir = path.join(__dirname, "../../uploads/");
+    const uploadDir = path.join(__dirname, "../../uploads");
     cb(null, uploadDir);
   },
   filename: function (req, file, cb) {
@@ -30,7 +30,6 @@ const fileFilter = (req: Request, file: Express.Multer.File, cb: any) => {
 const upload = multer({
   storage,
   fileFilter,
-  limits: { fileSize: 5 * 1024 * 1024 },
 }).single("documentPhoto");
 
 router.post("/patients", upload, validatePatient, registerPatient);

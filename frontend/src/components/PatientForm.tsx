@@ -57,7 +57,8 @@ const PatientForm: FC<PatientFormProps> = ({
     const formDataToSend = new FormData();
     formDataToSend.append("name", formData.name);
     formDataToSend.append("email", formData.email);
-    formDataToSend.append("phone", `${formData.countryCode}${formData.phone}`);
+    formDataToSend.append("countryCode", formData.countryCode);
+    formDataToSend.append("phoneNumber", formData.phone);
     if (formData.documentPhoto) {
       formDataToSend.append("documentPhoto", formData.documentPhoto);
     }
@@ -77,7 +78,8 @@ const PatientForm: FC<PatientFormProps> = ({
       const newPatient = {
         name: formData.name,
         email: formData.email,
-        phone: `${formData.countryCode}${formData.phone}`,
+        countryCode: formData.countryCode,
+        phoneNumber: formData.phone,
         documentPhoto: formData.documentPhoto
           ? URL.createObjectURL(formData.documentPhoto)
           : null,

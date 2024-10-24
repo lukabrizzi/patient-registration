@@ -31,13 +31,11 @@ export const validatePatient = async (
 
   try {
     patientSchema.parse(req.body);
-    const { name, email, countryCode, phoneNumber } = req.body;
-
-    const fullPhone = `${countryCode}${phoneNumber}`;
+    const { name, email } = req.body;
 
     const [existingPatients]: [RowDataPacket[], any] = await db.query(
-      "SELECT * FROM patients WHERE name = ? OR email = ? OR CONCAT(countryCode, phoneNumber) = ?",
-      [name, email, fullPhone]
+      "SELECT * FROM patients WHERE name = ? OR email = ?",
+      [name, email]
     );
 
     console.log("Existing patients found:", existingPatients);
