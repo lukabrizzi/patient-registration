@@ -19,7 +19,7 @@ const Button: FC<ButtonProps> = ({
     <button
       type={type}
       onClick={onClick}
-      className={`bg-blue-500 text-white font-semibold py-2 px-4 rounded shadow-md hover:bg-blue-600 transition duration-200 ${className}`}
+      className={`bg-blue-500 text-white font-semibold py-2 px-4 rounded shadow-lg hover:bg-blue-600 transition duration-200 ${className}`}
       aria-label={ariaLabel}
       style={{ width: "max-content" }}
     >

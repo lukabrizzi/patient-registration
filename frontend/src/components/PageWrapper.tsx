@@ -5,6 +5,8 @@ import PatientForm from "./PatientForm";
 import { Plus } from "lucide-react";
 import Button from "./Button";
 import axios from "axios";
+import EmptyState from "./EmptyState";
+import PatientProfile from "./PatientProfile";
 
 export interface Patient {
   id: number;
@@ -15,14 +17,15 @@ export interface Patient {
 }
 
 const PageWrapper = () => {
-  const [isModalOpen, setModalOpen] = useState<boolean>(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState<boolean>(false);
+  const [patientToShow, setPatientToShow] = useState<Patient | null>(null);
 
-  const handleOpenModal = () => {
-    setModalOpen(true);
+  const handleOpenCreateModal = () => {
+    setIsCreateModalOpen(true);
   };
 
-  const handleCloseModal = () => {
-    setModalOpen(false);
+  const handleCloseCreateModal = () => {
+    setIsCreateModalOpen(false);
   };
 
   const [patients, setPatients] = useState<Patient[]>([]);
@@ -44,26 +47,41 @@ const PageWrapper = () => {
     <>
       <div className="w-screen h-screen p-10">
         <h1 className="font-bold text-3xl">Patients</h1>
-        <div className="p-10 space-y-4">
-          <Button onClick={handleOpenModal}>
+        <div className="flex flex-col p-10 space-y-4">
+          <Button onClick={handleOpenCreateModal}>
             <div className="flex flex-row gap-2">
               <Plus />
               Create Patient
             </div>
           </Button>
 
-          <PatientList patients={patients} />
+          {patients.length > 0 ? (
+            <PatientList
+              patients={patients}
+              setPatientToShow={setPatientToShow}
+            />
+          ) : (
+            <EmptyState entity="patients" />
+          )}
         </div>
       </div>
       <Modal
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
+        isOpen={isCreateModalOpen}
+        onClose={handleCloseCreateModal}
         title="Create Patient"
       >
         <PatientForm
-          setModalOpen={setModalOpen}
+          setIsCreateModalOpen={setIsCreateModalOpen}
           fetchPatients={fetchPatients}
         />
+      </Modal>
+      <Modal
+        isOpen={!!patientToShow}
+        onClose={() => setPatientToShow(null)}
+        title="Patient Profile"
+      >
+        {/* Added ! because when we show the modal is because patientToShow is not null */}
+        <PatientProfile patient={patientToShow!} />
       </Modal>
     </>
   );
